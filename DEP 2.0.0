@@ -1,0 +1,112 @@
+#!/bin/bash
+
+function SetProvision()
+{
+	sudo /usr/libexec/PlistBuddy -c "Set :Provision Status Provisioned" /usr/local/ti/com.ti.provisioned.plist
+}
+
+function Recon()
+{
+	sudo /usr/local/bin/jamf recon
+}
+
+function Policy()
+{
+	sudo /usr/local/bin/jamf policy
+}
+
+function KJH()
+{
+	sleep 6; killall jamfhelper
+}
+
+CompType=`/usr/sbin/system_profiler SPHardwareDataType | grep 'Model Name:' | awk -F': ' '{print substr($2,1)}'`
+
+LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
+
+ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
+
+function ScreenSize()
+{
+	resolution=`system_profiler SPDisplaysDataType |grep Resolution | awk '{print$2,$3,$4}'	`
+
+	if [ "${resolution}" == "1366 x 768" ]; then
+		screen="11\""
+	elif [ "${resolution}" == "2560 x 1600" ] || [ "${resolution}" == "1440 by 900" ]; then
+		screen="13\""
+	elif [ "${resolution}" == "2880 x 1800" ]; then
+		screen="15\""
+	elif [ "${resolution}" == "1920 x 1080" ] || [ "${resolution}" == "4096 by 2304" ]; then
+		screen="21\""
+	elif [ "${resolution}" == "5120 x 2880" ]; then
+		screen="27\""
+	fi
+
+	model="${screen} ${CompType}"
+
+	echo $model
+}
+
+function JAMFHelper()
+{
+	windowType="fs"
+	windowPostion="ul"
+	alignDescription="center"
+	alignHeading="center"
+
+	jhHeading=$2
+	jhDescription="Your $(ScreenSize) is being customized. This may take up to 30 minutes, depending on your network speed."
+
+	"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
+	-windowType "$windowType" \
+	-title "$jhTitle" \
+	-heading "$jhHeading" \
+	-description "$jhDescription" \
+	-icon $3 \
+	-iconSize $4 \
+	-alignDescription "$alignDescription" \
+	-alignHeading "$alignHeading" &
+	jamf policy -trigger $1
+
+	if [ $5 -eq 1]; then
+		/usr/bin/killall jamfhelper
+	fi
+}
+
+
+
+Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" ${ModelIcon} "768" 1)
+SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
+Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons/100-sep_app_icon.icns" "256")
+Encrypt=("Encryption" "Encrypting\ Hard\ Drive" "/System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns" "256" 1)
+VPN=("VPN" "Configuring\ Pulse\ Client" "/usr/local/ti/icons/102-pulse.icns" "256" 1)
+EC=("EC" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
+GP=("GP" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
+Printing=("Printing" "Installing\ Printer\ Drivers" "/usr/local/ti/icons/200-ySoft.icns" "256" 1)
+MapPrint=("MapPrinting" "Setting\ up\ Printing" "/usr/local/ti/icons/200-ySoft.icns" "256" 1)
+CrashPlan=("CrashPlan" "Installing\ Crash\ Plan" "/usr/local/ti/icons/201-CrashPlan.icns" "256" 1)
+UI=("UI" "Optimizing\ User\ Experience" "/usr/local/ti/icons/300-UsersIcon.icns" "256" 1)
+CacheOffice=("CacheMSOffice2016" "Downloading\ Microsoft\ Office\ 2016" "/usr/local/ti/icons/400-msOfficeInstaller.icns" "256" 1)
+InstallOffice=("InstallMSOffice2016" "Installing\ Microsoft\ Office\ 2016" "/usr/local/ti/icons/400-msOfficeInstaller.icns" "256" 1)
+Jabber=("Jabber" "Installing\ Jabber" "/usr/local/ti/icons/502-CiscoJabber.icns" "256" 1)
+Plugins=("Plugins" "Installing\ Internet\ Plugins" "/Applications/Safari.app/Contents/Resources/compass.icns" "256" 1)
+OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns" "256" 1)
+Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/Applications/Wireless Diagnostics.app/Contents/Resources/WirelessDiagnostics.icns" "256" 1)
+Enjoy=("Enjoy" "/usr/local/ti/icons/999-Success.icns" "256" 0)
+
+Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${MapPrint[*]}" "${CrashPlan[*]}" "${UI[*]}" "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}" "${Wireless[*]}")
+
+ArrLen="${#Policies[@]}"
+
+for (( i=0; i<"${ArrLen}"; i++ ));
+do
+	echo "${Policies[i]}" | while read trigger description icon iconSize kjh
+	do
+		JAMFHelper "${trigger}" "${description}" "${icon}" "${iconSize}" "${kjh}"
+	done
+done
+
+#JAMFHelper Enjoy && SetProvision && Recon && Wireless && KJH
+osascript -e 'display dialog "Done"'
+
+exit 0
