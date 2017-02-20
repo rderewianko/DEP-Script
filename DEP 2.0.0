@@ -1,5 +1,14 @@
 #!/bin/bash
 
+########################################################################################
+# SCRIPT: DEP Test Basic - Office & OS Updates & Config
+#
+# DESCRIPTION: DEP Script which includes a single Cache and Install of Microsoft Office,
+#               OS Updates, and Configuration Profiles as Policies.
+#
+# VERSION: 2.0.0
+########################################################################################
+
 function CompName() {
     cType=`/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name"`
     sNumber=`/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')`
