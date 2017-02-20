@@ -15,8 +15,6 @@ function CompName() {
 		/usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "D${sNumber}"
 	fi
 
-
-
 	echo "Computer Name Information"
 	echo "************************************************************"
 		echo "Computer Name: $(/usr/sbin/scutil --get ComputerName)"
@@ -51,7 +49,7 @@ function Policy() {
 }
 
 function KJH() {
-	sleep 6; killall jamfhelper
+	/usr/bin/killall jamfhelper
 }
 
 LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
@@ -63,7 +61,7 @@ function ScreenSize() {
 	SizeQuery=`system_profiler SPHardwareDataType | grep "Model Identifier" | sed 's/[^0-9]*//g'`
 	ModelName="${ModelQuery##*:}"
 	Screen="${SizeQuery:0:2}"
-	Model="${Screen}${ModelName}"
+	Model="${Screen}\"${ModelName}"
 
 	echo "${Model}"
 }
@@ -74,7 +72,7 @@ function JAMFHelper() {
 	alignDescription="center"
 	alignHeading="center"
 
-	jhHeading=$2
+	jhHeading="${2}"
 	jhDescription="Your $(ScreenSize) is being customized. This may take up to 30 minutes, depending on your network speed."
 
 	"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
@@ -82,14 +80,14 @@ function JAMFHelper() {
 	-title "$jhTitle" \
 	-heading "$jhHeading" \
 	-description "$jhDescription" \
-	-icon $3 \
-	-iconSize $4 \
+	-icon "${3}" \
+	-iconSize "${4}" \
 	-alignDescription "$alignDescription" \
 	-alignHeading "$alignHeading" &
-	jamf policy -trigger $1
+	jamf policy -trigger "${1}"
 
-	if [ $5 -eq 1]; then
-		/usr/bin/killall jamfhelper
+	if [ "${5}" -eq 1]; then
+		"$(KJH)"
 	fi
 }
 
@@ -112,9 +110,10 @@ Jabber=("Jabber" "Installing\ Jabber" "/usr/local/ti/icons/502-CiscoJabber.icns"
 Plugins=("Plugins" "Installing\ Internet\ Plugins" "/Applications/Safari.app/Contents/Resources/compass.icns" "256" 1)
 OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns" "256" 1)
 Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns" "256" 1)
-Enjoy=("Enjoy" "/usr/local/ti/icons/999-Success.icns" "256" 0)
+Enjoy=("Enjoy" "/usr/local/ti/icons/999-Success.icns" "256" 1)
 
-Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${MapPrint[*]}" "${CrashPlan[*]}" "${UI[*]}" "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}" "${Wireless[*]}")
+Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${MapPrint[*]}" "${CrashPlan[*]}" "${UI[*]}"\
+ "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}" "${Wireless[*]}")
 
 ArrLen="${#Policies[@]}"
 
@@ -126,6 +125,6 @@ do
 	done
 done
 
-APICall Status Deployed && APICall UserGroup Production &&
+APICall Status Deployed && APICall UserGroup Production && JAMFHelper Enjoy
 
 exit 0
