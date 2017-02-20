@@ -1,54 +1,74 @@
 #!/bin/bash
 
-function SetProvision()
-{
+function CompName() {
+    cType=`/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name"`
+    sNumber=`/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')`
+	if [ "${cType}" == "MacBook" ]; then
+		/usr/sbin/scutil --set ComputerName "L${sNumber}"
+		/usr/sbin/scutil --set LocalHostName "L${sNumber}"
+		/usr/sbin/scutil --set HostName "L${sNumber}"
+		/usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "L${sNumber}"
+	else
+		/usr/sbin/scutil --set ComputerName  "D${sNumber}"
+		/usr/sbin/scutil --set LocalHostName "D${sNumber}"
+		/usr/sbin/scutil --set HostName "D${sNumber}"
+		/usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "D${sNumber}"
+	fi
+
+
+
+	echo "Computer Name Information"
+	echo "************************************************************"
+		echo "Computer Name: $(/usr/sbin/scutil --get ComputerName)"
+		echo "LocalHost Name: $(/usr/sbin/scutil --get LocalHostName)"
+		echo "Host Name: $(/usr/sbin/scutil --get HostName)"
+	echo " "
+}
+
+JSSAPIpass="${4}"
+
+function APICall() {
+jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
+    serial="C02SW9B7HF1R"
+    jssAPIUser="jssapi"
+    jssAPIPass="${JSSAPIpass}"
+    Name="${1}"
+    Value="${2}"
+
+    curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>"${Name}"</name><value>"${Value}"</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
+}
+
+function SetProvision() {
 	sudo /usr/libexec/PlistBuddy -c "Set :Provision Status Provisioned" /usr/local/ti/com.ti.provisioned.plist
 }
 
-function Recon()
-{
+function Recon() {
 	sudo /usr/local/bin/jamf recon
 }
 
-function Policy()
-{
+function Policy() {
 	sudo /usr/local/bin/jamf policy
 }
 
-function KJH()
-{
+function KJH() {
 	sleep 6; killall jamfhelper
 }
-
-CompType=`/usr/sbin/system_profiler SPHardwareDataType | grep 'Model Name:' | awk -F': ' '{print substr($2,1)}'`
 
 LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
 
 ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
 
-function ScreenSize()
-{
-	resolution=`system_profiler SPDisplaysDataType |grep Resolution | awk '{print$2,$3,$4}'	`
+function ScreenSize() {
+	ModelQuery=`system_profiler SPHardwareDataType | grep "Model Name"`
+	SizeQuery=`system_profiler SPHardwareDataType | grep "Model Identifier" | sed 's/[^0-9]*//g'`
+	ModelName="${ModelQuery##*:}"
+	Screen="${SizeQuery:0:2}"
+	Model="${Screen}${ModelName}"
 
-	if [ "${resolution}" == "1366 x 768" ]; then
-		screen="11\""
-	elif [ "${resolution}" == "2560 x 1600" ] || [ "${resolution}" == "1440 by 900" ]; then
-		screen="13\""
-	elif [ "${resolution}" == "2880 x 1800" ]; then
-		screen="15\""
-	elif [ "${resolution}" == "1920 x 1080" ] || [ "${resolution}" == "4096 by 2304" ]; then
-		screen="21\""
-	elif [ "${resolution}" == "5120 x 2880" ]; then
-		screen="27\""
-	fi
-
-	model="${screen} ${CompType}"
-
-	echo $model
+	echo "${Model}"
 }
 
-function JAMFHelper()
-{
+function JAMFHelper() {
 	windowType="fs"
 	windowPostion="ul"
 	alignDescription="center"
@@ -73,7 +93,7 @@ function JAMFHelper()
 	fi
 }
 
-
+CompName && Recon &&
 
 Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" ${ModelIcon} "768" 1)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
@@ -91,7 +111,7 @@ InstallOffice=("InstallMSOffice2016" "Installing\ Microsoft\ Office\ 2016" "/usr
 Jabber=("Jabber" "Installing\ Jabber" "/usr/local/ti/icons/502-CiscoJabber.icns" "256" 1)
 Plugins=("Plugins" "Installing\ Internet\ Plugins" "/Applications/Safari.app/Contents/Resources/compass.icns" "256" 1)
 OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns" "256" 1)
-Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/Applications/Wireless Diagnostics.app/Contents/Resources/WirelessDiagnostics.icns" "256" 1)
+Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns" "256" 1)
 Enjoy=("Enjoy" "/usr/local/ti/icons/999-Success.icns" "256" 0)
 
 Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${MapPrint[*]}" "${CrashPlan[*]}" "${UI[*]}" "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}" "${Wireless[*]}")
@@ -106,7 +126,6 @@ do
 	done
 done
 
-#JAMFHelper Enjoy && SetProvision && Recon && Wireless && KJH
-osascript -e 'display dialog "Done"'
+APICall Status Deployed && APICall UserGroup Production &&
 
 exit 0
