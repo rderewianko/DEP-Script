@@ -1,10 +1,9 @@
 #!/bin/bash
 
 ########################################################################################
-# SCRIPT: DEP Test Basic - Office & OS Updates & Config
+# SCRIPT: DEP 2.0.0
 #
-# DESCRIPTION: DEP Script which includes a single Cache and Install of Microsoft Office,
-#               OS Updates, and Configuration Profiles as Policies.
+# DESCRIPTION: DEP Script 2.0.0
 #
 # VERSION: 2.0.0
 ########################################################################################
@@ -30,6 +29,10 @@ function CompName() {
 		echo "LocalHost Name: $(/usr/sbin/scutil --get LocalHostName)"
 		echo "Host Name: $(/usr/sbin/scutil --get HostName)"
 	echo " "
+}
+
+function LockScreen() {
+  sudo /System/Library/CoreServices/RemoteManagement/AppleVNCServer.bundle/Contents/Support/LockScreen.app/Contents/MacOS/LockScreen -session 256
 }
 
 JSSAPIpass="${4}"
@@ -110,7 +113,7 @@ function JAMFHelper() {
 	fi
 }
 
-CompName && Recon &&
+LockScreen CompName && Recon &&
 
 Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns" "768" 1)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
