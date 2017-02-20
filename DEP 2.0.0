@@ -27,7 +27,7 @@ JSSAPIpass="${4}"
 
 function APICall() {
 jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
-    serial="C02SW9B7HF1R"
+    serial=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
     jssAPIUser="jssapi"
     jssAPIPass="${JSSAPIpass}"
     Name="${1}"
