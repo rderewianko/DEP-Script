@@ -37,7 +37,7 @@ jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
 }
 
 function SetProvision() {
-	sudo /usr/libexec/PlistBuddy -c "Set :Provision Status Provisioned" /usr/local/ti/com.ti.provisioned.plist
+	sudo /usr/libexec/PlistBuddy -c "Set :Provision Status Provisioned" -c "Set :ProvisioningScript 2.0.0"/usr/local/ti/com.ti.provisioned.plist
 }
 
 function Recon() {
