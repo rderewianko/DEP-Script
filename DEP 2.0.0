@@ -67,9 +67,21 @@ ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.
 
 function ScreenSize() {
 	ModelQuery=`system_profiler SPHardwareDataType | grep "Model Name"`
-	SizeQuery=`system_profiler SPHardwareDataType | grep "Model Identifier" | sed 's/[^0-9]*//g'`
 	ModelName="${ModelQuery##*:}"
-	Screen="${SizeQuery:0:2}"
+
+	resolution=`system_profiler SPDisplaysDataType |grep Resolution | awk '{print$2,$3,$4}'	`
+	if [ "${resolution}" == "1366 x 768" ]; then
+		Screen="11"
+		elif [ "${resolution}" == "2560 x 1600" ] || [ "${resolution}" == "1440 by 900" ]; then
+		Screen="13"
+		elif [ "${resolution}" == "2880 x 1800" ]; then
+		Screen="15"
+		elif [ "${resolution}" == "1920 x 1080" ] || [ "${resolution}" == "4096 by 2304" ]; then
+		Screen="21"
+		elif [ "${resolution}" == "5120 x 2880" ]; then
+		Screen="27"
+	fi
+
 	Model="${Screen}\"${ModelName}"
 
 	echo "${Model}"
