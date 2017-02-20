@@ -63,8 +63,6 @@ function KJH() {
 
 LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
 
-ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
-
 function ScreenSize() {
 	ModelQuery=`system_profiler SPHardwareDataType | grep "Model Name"`
 	ModelName="${ModelQuery##*:}"
@@ -114,7 +112,7 @@ function JAMFHelper() {
 
 CompName && Recon &&
 
-Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "${ModelIcon}" "768" 1)
+Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns" "768" 1)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
 Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons/100-sep_app_icon.icns" "256")
 Encrypt=("Encryption" "Encrypting\ Hard\ Drive" "/System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns" "256" 1)
