@@ -1,17 +1,20 @@
 #!/bin/bash
 
-CompType=`/usr/sbin/system_profiler SPHardwareDataType | grep 'Model Name:' | awk -F': ' '{print substr($2,1)}'`
+#####################################################################################
+# SCRIPT: DEP Test Basic - Office & OS Updates & Config
+#
+# DESCRIPTION: DEP Script which includes a single Cache and Install of Microsoft Office,
+#               OS Updates, and Configuration Profiles as Policies.
+#
+# VERSION: 1.0.3
+#####################################################################################
 
-LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
+JSSAPIpass="${4}" # 1.0.1 Changed API Variable Name -BF
 
-#SetupDir="/Users/$LoggedInUser"
-
-#while [ 1 ]; do
-#	if [  -d "$SetupDir" ]; then
-#		break
-#	fi
-#	sleep 1
-#done
+function SetProvision()
+{
+    sudo /usr/libexec/PlistBuddy -c "Set :Status Provisioned" -c "Set :ProvisioningScript 1.0.2" /usr/local/ti/com.ti.provisioned.plist
+}
 
 function Recon()
 {
@@ -84,6 +87,11 @@ function Wireless()
 	sudo /usr/local/bin/jamf recon
 }
 
+CompType=`/usr/sbin/system_profiler SPHardwareDataType | grep 'Model Name:' | awk -F': ' '{print substr($2,1)}'`
+
+LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
+
+
 # get Screen Size
 #######################################################################################################################
 resolution=`system_profiler SPDisplaysDataType |grep Resolution | awk '{print$2,$3,$4}'	`
@@ -104,27 +112,10 @@ model="${screen} ${CompType} ${isRetina}"
 
 # get ICNS File
 ########################################################################################################################################
-if [ "${resolution}" == "1366 x 768" ] || [ "${CompType}" == "MacBook Air" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbookair.icns"
 
-	elif [ "${resolution}" == "1440 x 900" ] || [ "${CompType}" == "MacBook Air" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbookpro-13-retina-display.icns"
+# 1.0.0 Changing to one icon to somplify the icon call -BF
 
-	elif [ "${resolution}" == "2560 x 1600" ] || [ "${CompType}" == "MacBook Pro" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbookpro-13-retina-display.icns"
-
-	elif [ "${resolution}" == "2880 x 1800" ]  || [ "${CompType}" == "MacBook Pro" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbookpro-15-retina-display.icns"
-
-	elif [ "${resolution}" == "1920 x 1080 " ] || [ "${CompType}" == "iMac" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.imac-unibody-27-no-optical.icns"
-
-	elif [ "${resolution}" == "4096 x 2304" ] || [ "${CompType}" == "iMac" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.imac-unibody-27-no-optical.icns"
-
-	elif [ "${resolution}" == "5120 x 2880" ] || [ "${CompType}" == "iMac" ]; then
-	ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.imac-unibody-27-no-optical.icns"
-fi
+ModelIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
 
 # JAMF Helper Variables
 #######################################################################################################################
@@ -138,7 +129,12 @@ fi
 #######################################################################################################################
 # Variables
 #######################################################################################################################
-policyName="Welcome"
+
+# 1.0.0 Welcome Policy is being installed on enrollment
+#    Keeping jamf helper window to call configuration profile policy -BF
+
+#policyName="Welcome"
+policyName="ConfigProf"
 jhHeading="Congratulations ${LoggedInUser}"	#"string"
 jhDescription="Your $model is being customized. This may take up to 30 minutes, depending on your network speed."
 model="${screen} ${CompType} ${isRetina}"
@@ -152,10 +148,20 @@ model="${screen} ${CompType} ${isRetina}"
 -iconSize "768" \
 -alignDescription "$alignDescription" \
 -alignHeading "$alignHeading" &
-jamf policy -trigger $policyName
-sudo /usr/local/bin/jamf recon
+#jamf policy -trigger $policyName
+#sudo /usr/local/bin/jamf recon
 
-CompName && Recon && DHCPinfo && sleep 15 && Recon && sleep 60 && Policy && Recon
+CompName && Recon && DHCPinfo && Recon
+
+jamf policy -trigger $policyName
+
+# Configuration Profiles
+#######################################################################################################################
+
+# 1.0.0 ConfigProf Policy is being called in the above section -BF
+
+#policyName="ConfigProf"
+#jamf policy -trigger $policyName
 
 # Screen 002 - Preparing Setup
 #######################################################################################################################
@@ -227,7 +233,7 @@ killall jamfhelper
 #######################################################################################################################
 policyName="VPN"
 jhHeading="Configuring Pulse Client"	#"string"
-#echo $jhDescription
+echo $jhDescription
 icon="/usr/local/ti/icons/102-pulse.icns"
 
 "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
@@ -239,7 +245,7 @@ icon="/usr/local/ti/icons/102-pulse.icns"
 -iconSize "$iconSize" \
 -alignDescription "$alignDescription" \
 -alignHeading "$alignHeading" &
-jamf policy -trigger $policyName &&
+jamf policy -trigger $policyName
 
 sleep 6
 killall jamfhelper
@@ -289,7 +295,10 @@ killall jamfhelper
 
 # Screen 200 - Printer: Xerox Driver, non-admin print, CUPS enabled
 #######################################################################################################################
-policyName="Printing"
+
+# 1.0.0 Combined printing into one call -BF
+#policyName="Printing"
+policyName="YsoftInstall"
 jhHeading="Installing Printer Drivers"	#"string"
 
 icon="/usr/local/ti/icons/200-ySoft.icns"
@@ -310,30 +319,32 @@ killall jamfhelper
 
 # Screen 201 - Print: Map Printers
 #######################################################################################################################
-policyName="MapPrinting"
-jhHeading="Setting up Printing"	#"string"
 
-icon="/usr/local/ti/icons/200-ySoft.icns"
+# 1.0.0 Commenting out Print Mapping because it is being combined with the print policy above -BF
+#policyName="MapPrinting"
+#jhHeading="Setting up Printing"	#"string"
 
-"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
--windowType "$windowType" \
--title "$jhTitle" \
--heading "$jhHeading" \
--description "$jhDescription" \
--icon "$icon" \
--iconSize "$iconSize" \
--alignDescription "$alignDescription" \
--alignHeading "$alignHeading" &#echo "Configuring: Follow Me Printing" &&
+#icon="/usr/local/ti/icons/200-ySoft.icns"
+
+#"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
+#-windowType "$windowType" \
+#-title "$jhTitle" \
+#-heading "$jhHeading" \
+#-description "$jhDescription" \
+#-icon "$icon" \
+#-iconSize "$iconSize" \
+#-alignDescription "$alignDescription" \
+#-alignHeading "$alignHeading" &#echo "Configuring: Follow Me Printing" &&
 #$policyName &&
 
-jamf policy -trigger $policyName
+#jamf policy -trigger $policyName
 
-sleep 6
-killall jamfhelper
+#sleep 6
+#killall jamfhelper
 
 
 
-# Screen 202 - Install Crash Plan
+# Screen 201 - Install Crash Plan
 #######################################################################################################################
 policyName="CrashPlan"
 jhHeading="Installing Crash Plan"	#"string"
@@ -418,195 +429,14 @@ sleep 6
 killall jamfhelper
 
 
-# Screen 400 - Cache Microsoft Excel
+# Screen 501 - Install WebEx
 #######################################################################################################################
-#policyName="CacheMSExcel2016"
-#jhHeading="Downloading Microsoft Excel 2016"
-#
-#icon="/usr/local/ti/icons/400-msOfficeInstaller.icns"
-#
-#"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-#-windowType "$windowType" \
-#-title "$jhTitle" \
-#-heading "$jhHeading" \
-#-description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
-#
-#
-#
-# # Screen 401 - Install Microsoft Excel
-# #######################################################################################################################
-# policyName="InstallMSExcel2016"
-# jhHeading="Installing Microsoft Excel 2016"	#"string"
-#
-# icon="/usr/local/ti/icons/405-msExcel2016.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$icon" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
-#
-# # Screen 402 - Cache Microsoft Outlook
-# #######################################################################################################################
-# policyName="CacheMSOutlook2016"
-# jhHeading="Downloading Microsoft Outlook 2016"	#"string"
-#
-# icon="/usr/local/ti/icons/400-msOfficeInstaller.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
-#
-#
-#
-# # Screen 403 - Install Microsoft Outlook
-# #######################################################################################################################
-# policyName="InstallMSOutlook2016"
-# jhHeading="Installing Microsoft Outlook 2016"	#"string"
-#
-# icon="/usr/local/ti/icons/401-msOutlook2016.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-#
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
-#
-# # Screen 404 - Cache Microsoft PowerPoint
-# #######################################################################################################################
-# policyName="CacheMSPowerPoint2016"
-# jhHeading="Downloading Microsoft PowerPoint 2016"	#"string"
-#
-# icon="/usr/local/ti/icons/400-msOfficeInstaller.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-#
-# jamf policy -trigger $policyName
-# sleep 6
-# killall jamfhelper
-#
-#
-#
-# # Screen 405 - Install Microsoft PowerPoint
-# #######################################################################################################################
-# policyName="InstallMSPowerPoint2016"
-# jhHeading="Installing Microsoft PowerPoint 2016"	#"string"
-# echo $jhDescription
-# icon="/usr/local/ti/icons/403-MSPowerPoint2016.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
-#
-#
-#
-# # Screen 406 - Cache Microsoft Word
-# #######################################################################################################################
-# policyName="CacheMSWord2016"
-# jhHeading="Downloading Microsoft Word 2016"	#"string"
-#
-# icon="/usr/local/ti/icons/400-msOfficeInstaller.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-#
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
-#
-#
-#
-# # Screen 407 - Install Microsoft Word
-# #######################################################################################################################
-# policyName="InstallMSWord2016"
-# jhHeading="Installing Microsoft Word 2016"	#"string"
-#
-#
-# icon="/usr/local/ti/icons/407-msWord2016.icns"
-#
-# "/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
-# -windowType "$windowType" \
-# -title "$jhTitle" \
-# -heading "$jhHeading" \
-# -description "$jhDescription" \
-# -icon "$icon" \
-# -iconSize "$iconSize" \
-# -alignDescription "$alignDescription" \
-# -alignHeading "$alignHeading" &
-#
-# jamf policy -trigger $policyName
-#
-# sleep 6
-# killall jamfhelper
 
-# Screen 407 - Install Microsoft Sharepoint Plugin
-#######################################################################################################################
-#policyName="InstallMSSharepointPlugin"
-#jhHeading="Installing Microsoft Sharepoint Plugin"	#"string"
+# 1.0.0 No WebEx policy exists. Commenting out this section -BF
+#policyName="Webex"
+#jhHeading="Installing WebEX Plugin"	#"string"
 
-
-#icon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericSharepoint.icns"
+#icon="/usr/local/ti/icons/501-WebExManager.icns"
 
 #"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
 #-windowType "$windowType" \
@@ -616,36 +446,12 @@ killall jamfhelper
 #-icon "$icon" \
 #-iconSize "$iconSize" \
 #-alignDescription "$alignDescription" \
-#-alignHeading "$alignHeading" &
+#-alignHeading "$alignHeading" &#echo "Configuring Symantec Anti Virus" && #$policyName &&
 
 #jamf policy -trigger $policyName
 
 #sleep 6
 #killall jamfhelper
-
-
-
-# Screen 501 - Install WebEx
-#######################################################################################################################
-policyName="Webex"
-jhHeading="Installing WebEX Plugin"	#"string"
-
-icon="/usr/local/ti/icons/501-WebExManager.icns"
-
-"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
--windowType "$windowType" \
--title "$jhTitle" \
--heading "$jhHeading" \
--description "$jhDescription" \
--icon "$icon" \
--iconSize "$iconSize" \
--alignDescription "$alignDescription" \
--alignHeading "$alignHeading" &#echo "Configuring Webex" && #$policyName &&
-
-jamf policy -trigger $policyName
-
-sleep 6
-killall jamfhelper
 
 
 # Screen 502 - Install Jabber
@@ -663,7 +469,7 @@ icon="/usr/local/ti/icons/502-CiscoJabber.icns"
 -icon "$icon" \
 -iconSize "$iconSize" \
 -alignDescription "$alignDescription" \
--alignHeading "$alignHeading" &#echo "Configuring Jabber" && #$policyName &&
+-alignHeading "$alignHeading" &#echo "Configuring Symantec Anti Virus" && #$policyName &&
 
 jamf policy -trigger $policyName
 
@@ -692,6 +498,7 @@ jamf policy -trigger $policyName
 
 sleep 6
 killall jamfhelper
+
 
 # Screen 850 - MacOS Updates
 #######################################################################################################################
@@ -741,7 +548,7 @@ echo "Available Wireless Device:" $wifiOrAirport
 echo $prefferedNetworks
 
 #while echo "$prefferedNetworks" | grep -q "$productionSSID" && echo "$prefferedNetworks" | grep -q "$provisioningSSID"; do
-	networksetup -removepreferredwirelessnetwork "$wirelessDevice" "$provisioningSSID"
+	/usr/sbin/networksetup -removepreferredwirelessnetwork "${wirelessDevice}" "${provisioningSSID}"
 #done
 	echo "Removed SSID:" $provisioningSSID
 
@@ -752,6 +559,59 @@ echo $prefferedNetworks
 sleep 2
 
 killall jamfhelper
+
+# EA API Call for Status and User Group
+function APICall()
+{
+    jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
+    serial=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
+    jssAPIUser="jssapi"
+    jssAPIPass="${JSSAPIpass}"
+
+    echo "<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+    <computer>
+    	<extension_attributes>
+    		<attribute>
+    			<name>$1</name>
+    			<value>$2</value>
+    		</attribute>
+    	</extension_attributes>
+    </computer>
+    " > /tmp/test.xml
+
+    curl -k -v -u $jssAPIUser:$jssAPIPass $jssURL/computers/serialnumber/$serial/subset/extensionattributes -T "/tmp/test.xml" -X PUT
+    rm /tmp/test.xml
+}
+
+# Screen 997 - Dock Default
+#######################################################################################################################
+policyName="SetDockDefault"
+jhHeading="Setting up Dock"	#"string"
+echo $jhDescription
+icon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns"
+
+"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
+-windowType "$windowType" \
+-title "$jhTitle" \
+-heading "$jhHeading" \
+-description "$jhDescription"  \
+-icon "$icon" \
+-iconSize "$iconSize" \
+-alignDescription "$alignDescription" \
+-alignHeading "$alignHeading" &
+
+jamf policy -trigger $policyName
+
+# Screen 996 - GP Proxy
+#######################################################################################################################
+# 1.0.2 Including GP Proxy Config
+#policyName="GPProxy"
+#jamf policy -trigger $policyName
+
+
+sleep 6
+killall jamfhelper
+
 
 # Screen 999 - Complete
 #######################################################################################################################
@@ -768,8 +628,8 @@ icon="/usr/local/ti/icons/999-Success.icns"
 -iconSize "$iconSize" \
 -alignDescription "$alignDescription" \
 -alignHeading "$alignHeading" &
+SetProvision && APICall "Status" "Deployed" && APICall "User Group" "Production" && Recon &&
 jamf policy -trigger $policyName
-sleep 2
 
 
 
