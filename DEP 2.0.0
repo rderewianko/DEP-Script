@@ -9,26 +9,17 @@
 ########################################################################################
 
 function CompName() {
-    cType=`/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name"`
-    sNumber=`/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')`
-	if [ "${cType}" == "MacBook" ]; then
-		/usr/sbin/scutil --set ComputerName "L${sNumber}"
-		/usr/sbin/scutil --set LocalHostName "L${sNumber}"
-		/usr/sbin/scutil --set HostName "L${sNumber}"
-		/usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "L${sNumber}"
-	else
-		/usr/sbin/scutil --set ComputerName  "D${sNumber}"
-		/usr/sbin/scutil --set LocalHostName "D${sNumber}"
-		/usr/sbin/scutil --set HostName "D${sNumber}"
-		/usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "D${sNumber}"
-	fi
-
-	echo "Computer Name Information"
-	echo "************************************************************"
-		echo "Computer Name: $(/usr/sbin/scutil --get ComputerName)"
-		echo "LocalHost Name: $(/usr/sbin/scutil --get LocalHostName)"
-		echo "Host Name: $(/usr/sbin/scutil --get HostName)"
-	echo " "
+    CompType=`/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name"`
+    SerialNumber=`/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')`
+  if [ "${CompType}" == "MacBook" ]; then
+    CompName="L${SerialNumber}"
+  else
+    CompName="D${SerialNumber}"
+  fi
+		/usr/sbin/scutil --set ComputerName  "${CompName}"
+		/usr/sbin/scutil --set LocalHostName "${CompName}"
+		/usr/sbin/scutil --set HostName "${CompName}"
+    /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "${CompName}"
 }
 
 function LockScreen() {
@@ -45,11 +36,11 @@ jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
     Name="${1}"
     Value="${2}"
 
-    curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>"${Name}"</name><value>"${Value}"</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
+    curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>""${Name}""</name><value>""${Value}""</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
 }
 
 function SetProvision() {
-	sudo /usr/libexec/PlistBuddy -c "Set :Provision Status Provisioned" -c "Set :ProvisioningScript 2.0.0"/usr/local/ti/com.ti.provisioned.plist
+	sudo /usr/libexec/PlistBuddy -c "Set :Status Provisioned" -c "Set :ProvisioningScript 2.0.0"/usr/local/ti/com.ti.provisioned.plist
 }
 
 function Recon() {
@@ -67,23 +58,21 @@ function KJH() {
 LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
 
 function ScreenSize() {
-	ModelQuery=`system_profiler SPHardwareDataType | grep "Model Name"`
+	ModelQuery=$(system_profiler SPHardwareDataType | grep "Model Name")
 	ModelName="${ModelQuery##*:}"
 
-	resolution=`system_profiler SPDisplaysDataType |grep Resolution | awk '{print$2,$3,$4}'	`
-	if [ "${resolution}" == "1366 x 768" ]; then
-		Screen="11"
-		elif [ "${resolution}" == "2560 x 1600" ] || [ "${resolution}" == "1440 by 900" ]; then
-		Screen="13"
-		elif [ "${resolution}" == "2880 x 1800" ]; then
-		Screen="15"
-		elif [ "${resolution}" == "1920 x 1080" ] || [ "${resolution}" == "4096 by 2304" ]; then
-		Screen="21"
-		elif [ "${resolution}" == "5120 x 2880" ]; then
-		Screen="27"
-	fi
+  resolution=$(system_profiler SPDisplaysDataType | grep Resolution | awk '{print$2,$3,$4}')
+    ScreenSize=`
+      case "${resolution}" in
+        "1366 x 768")                  echo "11";;
+        "2560 x 1600" | "1440 x 900")  echo "13";;
+        "2880 x 1800")                 echo "15";;
+        "1920 x 1080" | "4096 x 2304") echo "21";;
+        "5120 x 2880")                 echo "27";;
+      esac
+      `
 
-	Model="${Screen}\"${ModelName}"
+	Model="${ScreenSize}\"${ModelName}"
 
 	echo "${Model}"
 }
