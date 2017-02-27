@@ -8,9 +8,12 @@
 # VERSION: 2.0.0
 ########################################################################################
 
+LoggedInUser=$(/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)")
+CompIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
+
 function CompName() {
-    CompType=`/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name"`
-    SerialNumber=`/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')`
+    CompType=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name")
+    SerialNumber=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}'))
   if [ "${CompType}" == "MacBook" ]; then
     CompName="L${SerialNumber}"
   else
@@ -55,9 +58,6 @@ function KJH() {
 	/usr/bin/killall jamfhelper
 }
 
-LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
-CompIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
-
 function ScreenSize() {
 	ModelQuery=$(system_profiler SPHardwareDataType | grep "Model Name")
 	ModelName="${ModelQuery##*:}"
@@ -96,14 +96,14 @@ function JAMFHelper() {
 	-iconSize "${4}" \
 	-alignDescription "$alignDescription" \
 	-alignHeading "$alignHeading" &
-	jamf policy -trigger "${1}"
+	ehco "jamf policy -trigger ${1}"
 
 	if [ "${5}" -eq 1]; then
 		"$(KJH)"
 	fi
 }
 
-LockScreen & CompName && Recon &&
+#LockScreen & CompName && Recon &&
 
 Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "${CompIcon}" "768" 1)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
@@ -136,6 +136,6 @@ do
 	done
 done
 
-APICall Status Deployed && APICall UserGroup Production && JAMFHelper Wireless
+APICall Status Deployed && APICall UserGroup Production && SetProvision && JAMFHelper Wireless
 
 exit 0
