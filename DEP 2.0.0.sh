@@ -105,7 +105,7 @@ function JAMFHelper() {
 
 #LockScreen & CompName && Recon &&
 
-Configurations=("Configurations" "Congratulations ${LoggedInUser}" "${CompIcon}" "768" 1)
+Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "${CompIcon}" "768" 1)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
 Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons/100-sep_app_icon.icns" "256" 1)
 Encrypt=("Encryption" "Encrypting\ Hard\ Drive" "/System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns" "256" 1)
