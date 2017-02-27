@@ -123,7 +123,7 @@ OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes
 Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns" "256" 1)
 Enjoy=("Enjoy" "Enjoy\ Your\ New\ Macbook" "/usr/local/ti/icons/999-Success.icns" "256" 1)
 
-Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
+Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
  "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}")
 
 ArrLen="${#Policies[@]}"
