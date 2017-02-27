@@ -111,7 +111,7 @@ Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons
 Encrypt=("Encryption" "Encrypting\ Hard\ Drive" "/System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns" "256" 1)
 VPN=("VPN" "Configuring\ Pulse\ Client" "/usr/local/ti/icons/102-pulse.icns" "256" 1)
 EC=("EC" "Configuring\ Enterprise\ Connect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
-#GP=("GP" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
+GP=("GP" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
 Printing=("YsoftInstall" "Configuring\ Printers" "/usr/local/ti/icons/200-ySoft.icns" "256" 1)
 CrashPlan=("CrashPlan" "Installing\ Crash\ Plan" "/usr/local/ti/icons/201-CrashPlan.icns" "256" 1)
 UI=("UI" "Optimizing\ User\ Experience" "/usr/local/ti/icons/300-UsersIcon.icns" "256" 1)
@@ -124,7 +124,7 @@ Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/Cor
 Enjoy=("Enjoy" "Enjoy\ Your\ New\ Macbook" "/usr/local/ti/icons/999-Success.icns" "256" 1)
 
 Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
- "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}" "${Wireless[*]}")
+ "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}")
 
 ArrLen="${#Policies[@]}"
 
@@ -136,6 +136,6 @@ do
 	done
 done
 
-APICall Status Deployed && APICall UserGroup Production && JAMFHelper Enjoy
+APICall Status Deployed && APICall UserGroup Production && JAMFHelper Wireless
 
 exit 0
