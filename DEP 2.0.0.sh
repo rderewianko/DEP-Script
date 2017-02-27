@@ -119,7 +119,7 @@ CacheOffice=("CacheMSOffice2016" "Downloading\ Microsoft\ Office\ 2016" "/usr/lo
 InstallOffice=("InstallMSOffice2016" "Installing\ Microsoft\ Office\ 2016" "/usr/local/ti/icons/400-msOfficeInstaller.icns" "256" 1)
 Jabber=("Jabber" "Installing\ Jabber" "/usr/local/ti/icons/502-CiscoJabber.icns" "256" 1)
 Plugins=("Plugins" "Installing\ Internet\ Plugins" "/Applications/Safari.app/Contents/Resources/compass.icns" "256" 1)
-OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns" "256" 0)
+OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns" "256" 1)
 Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns" "256" 1)
 Enjoy=("Enjoy" "Enjoy\ Your\ New\ Macbook" "/usr/local/ti/icons/999-Success.icns" "256" 1)
 
