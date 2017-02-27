@@ -56,6 +56,7 @@ function KJH() {
 }
 
 LoggedInUser=`/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)"`
+CompIcon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns"
 
 function ScreenSize() {
 	ModelQuery=$(system_profiler SPHardwareDataType | grep "Model Name")
@@ -102,15 +103,15 @@ function JAMFHelper() {
 	fi
 }
 
-LockScreen CompName && Recon &&
+LockScreen & CompName && Recon &&
 
-Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns" "768" 1)
+Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "${CompIcon}" "768" 1)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" "256" 1)
-Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons/100-sep_app_icon.icns" "256")
+Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons/100-sep_app_icon.icns" "256" 1)
 Encrypt=("Encryption" "Encrypting\ Hard\ Drive" "/System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns" "256" 1)
 VPN=("VPN" "Configuring\ Pulse\ Client" "/usr/local/ti/icons/102-pulse.icns" "256" 1)
-EC=("EC" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
-GP=("GP" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
+EC=("EC" "Configuring\ Enterprise\ Connect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
+#GP=("GP" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" "256" 1)
 Printing=("YsoftInstall" "Configuring\ Printers" "/usr/local/ti/icons/200-ySoft.icns" "256" 1)
 CrashPlan=("CrashPlan" "Installing\ Crash\ Plan" "/usr/local/ti/icons/201-CrashPlan.icns" "256" 1)
 UI=("UI" "Optimizing\ User\ Experience" "/usr/local/ti/icons/300-UsersIcon.icns" "256" 1)
@@ -122,7 +123,7 @@ OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes
 Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns" "256" 1)
 Enjoy=("Enjoy" "Enjoy\ Your\ New\ Macbook" "/usr/local/ti/icons/999-Success.icns" "256" 1)
 
-Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
+Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
  "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}" "${Wireless[*]}")
 
 ArrLen="${#Policies[@]}"
