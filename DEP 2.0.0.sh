@@ -96,7 +96,7 @@ function JAMFHelper() {
 	-iconSize "${4}" \
 	-alignDescription "$alignDescription" \
 	-alignHeading "$alignHeading" &
-	ehco "jamf policy -trigger ${1}"
+	jamf policy -trigger "${1}"
 
 	if [ "${5}" -eq 1]; then
 		"$(KJH)"
