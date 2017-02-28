@@ -110,6 +110,5 @@ APICall "Status" "Deployed" &&
 APICall "UserGroup" "Production" &&
 SetProvision &&
 JAMFHelper WirelessUpdate "Wireless Network Configuration" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns 256 &&
-JAMFHelper Enjoy "Complete" /usr/local/ti/icons/999-Success.icns 256
 
 exit 0
