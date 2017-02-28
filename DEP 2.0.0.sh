@@ -105,7 +105,7 @@ function JAMFHelper() {
 	-alignHeading "$alignHeading" &
 	jamf policy -trigger "${1}"
 
-	"$(KJH)"
+	$(KJH)
 }
 
 LockScreen &
