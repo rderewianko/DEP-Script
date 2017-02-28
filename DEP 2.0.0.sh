@@ -107,7 +107,7 @@ function JAMFHelper() {
 	$(KJH)
 }
 
-LockScreen & CompName && Recon &&
+CompName && LockScreen &  Recon &&
 
 Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns" 768)
 SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" 256)
