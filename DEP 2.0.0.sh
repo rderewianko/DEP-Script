@@ -31,14 +31,12 @@ function LockScreen() {
 JSSAPIpass="${4}"
 
 function APICall() {
-jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
+    jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
     serial=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
     jssAPIUser="jssapi"
     jssAPIPass="${JSSAPIpass}"
-    Name="${1}"
-    Value="${2}"
 
-    curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>""${Name}""</name><value>""${Value}""</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
+    curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>${1}</name><value>${2}</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
 }
 
 function SetProvision() {
@@ -100,60 +98,27 @@ function JAMFHelper() {
 	$(KJH)
 }
 
-CompName && LockScreen & Recon &&
-
-Configurations=("Configurations" "Congratulations\ ${LoggedInUser}" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns" 768)
-SoftwarePrep=("SoftwarePrep" "Preparing\ Setup" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns" 256)
-Symantec=("SymantecAV" "Configuring\ Symantec\ Anti\ Virus" "/usr/local/ti/icons/100-sep_app_icon.icns" 256)
-Encrypt=("Encryption" "Encrypting\ Hard\ Drive" "/System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns" 256)
-VPN=("VPN" "Configuring\ Pulse\ Client" "/usr/local/ti/icons/102-pulse.icns" 256)
-EC=("EC" "Configuring\ Enterprise\ Connect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" 256)
-GP=("GP" "Configuring\ Global\ Protect" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns" 256)
-Printing=("YsoftInstall" "Configuring\ Printers" "/usr/local/ti/icons/200-ySoft.icns" 256)
-CrashPlan=("CrashPlan" "Installing\ Crash\ Plan" "/usr/local/ti/icons/201-CrashPlan.icns" 256)
-UI=("UI" "Optimizing\ User\ Experience" "/usr/local/ti/icons/300-UsersIcon.icns" 256)
-CacheOffice=("CacheMSOffice2016" "Downloading\ Microsoft\ Office\ 2016" "/usr/local/ti/icons/400-msOfficeInstaller.icns" 256)
-InstallOffice=("InstallMSOffice2016" "Installing\ Microsoft\ Office\ 2016" "/usr/local/ti/icons/400-msOfficeInstaller.icns" 256)
-Jabber=("Jabber" "Installing\ Jabber" "/usr/local/ti/icons/502-CiscoJabber.icns" 256)
-Plugins=("Plugins" "Installing\ Internet\ Plugins" "/Applications/Safari.app/Contents/Resources/compass.icns" 256)
-OSUpdates=("OSUpdates" "Updating\ MacOS" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns" 256)
-Wireless=("WirelessUpdate" "Updating\ Wireless\ Connection" "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns" 256)
-Enjoy=("Enjoy" "Enjoy\ Your\ New\ Macbook" "/usr/local/ti/icons/999-Success.icns" 256)
-
-JAMFHelper Configurations &&
-JAMFHelper SoftwarePrep &&
-JAMFHelper Symantec &&
-JAMFHelper Encrypt &&
-JAMFHelper VPN &&
-JAMFHelper EC &&
-JAMFHelper GP &&
-JAMFHelper Printing &&
-JAMFHelper CrashPlan &&
-JAMFHelper UI &&
-JAMFHelper CacheOffice &&
-JAMFHelper InstallOffice &&
-JAMFHelper Jabber &&
-JAMFHelper Plugins &&
-JAMFHelper OSUpdates &&
-APICall Status Deployed &&
-APICall UserGroup Production &&
+CompName &&
+LockScreen &
+Recon &&
+JAMFHelper Configurations "Congratulations ${LoggedInUser}" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns 768 &&
+JAMFHelper SoftwarePrep "Preparing Setup" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ToolbarCustomizeIcon.icns 256 &&
+JAMFHelper SymantecAV "Configuring Symantec Anti Virus" /usr/local/ti/icons/100-sep_app_icon.icns 256 &&
+JAMFHelper Encryption "Encrypting Hard Drive" /System/Library/PreferencePanes/Security.prefPane/Contents/Resources/FileVault.icns 256 &&
+JAMFHelper VPN "Configuring Pulse Client" /usr/local/ti/icons/102-pulse.icns 256 &&
+JAMFHelper EC "Configuring Enterprise Connect" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns 256 &&
+JAMFHelper GP "Configuring Global Protect" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/BookmarkIcon.icns 256 &&
+JAMFHelper YsoftInstall "Configuring Printers" /usr/local/ti/icons/200-ySoft.icns 256 &&
+JAMFHelper CrashPlan "Installing Crash Plan" /usr/local/ti/icons/201-CrashPlan.icns 256 &&
+JAMFHelper UI "Optimizing User Experience" /usr/local/ti/icons/300-UsersIcon.icns 256 &&
+JAMFHelper CacheMSOffice2016 "Downloading Microsoft Office 2016" /usr/local/ti/icons/400-msOfficeInstaller.icns 256 &&
+JAMFHelper InstallMSOffice2016 "Installing Microsoft Office 2016" /usr/local/ti/icons/400-msOfficeInstaller.icns 256 &&
+JAMFHelper Jabber "Installing Jabber" /usr/local/ti/icons/502-CiscoJabber.icns 256 &&
+JAMFHelper Plugins "Installing Internet Plugins" /Applications/Safari.app/Contents/Resources/compass.icns 256 &&
+JAMFHelper OSUpdates "Updating MacOS" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns 256 &&
+APICall "Status" "Deployed" &&
+APICall "UserGroup" "Production" &&
 SetProvision &&
-JAMFHelper Wireless
-
-#Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
- #"${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}")
-
-#for i in "${Policies[@]}"
-#do
-#	echo "${Policies[i]}" | while read trigger description icon iconSize
-#	do
-#		JAMFHelper "${trigger}" "${description}" "${icon}" "${iconSize}"
-#	done
-#done &&
-
-#APICall Status Deployed &&
-#APICall UserGroup Production &&
-#SetProvision &&
-#JAMFHelper Wireless
+JAMFHelper WirelessUpdate "Finishing up" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns 256
 
 exit 0
