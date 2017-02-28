@@ -15,17 +15,17 @@ function SetProvision() {
 }
 
 function CompName() {
-    CompType=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name")
-    SerialNumber=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
+  CompType=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name")
+  SerialNumber=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
   if [ "${CompType}" == *"MacBook"* ]; then
     CompName="L${SerialNumber}"
   else
     CompName="D${SerialNumber}"
   fi
-		/usr/sbin/scutil --set ComputerName  "${CompName}"
-		/usr/sbin/scutil --set LocalHostName "${CompName}"
-		/usr/sbin/scutil --set HostName "${CompName}"
-    /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "${CompName}"
+	/usr/sbin/scutil --set ComputerName  "${CompName}"
+	/usr/sbin/scutil --set LocalHostName "${CompName}"
+	/usr/sbin/scutil --set HostName "${CompName}"
+  /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName "${CompName}"
 }
 
 function LockScreen() {
@@ -35,12 +35,12 @@ function LockScreen() {
 JSSAPIpass="${4}"
 
 function APICall() {
-    jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
-    serial=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
-    jssAPIUser="jssapi"
-    jssAPIPass="${JSSAPIpass}"
+  jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
+  serial=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
+  jssAPIUser="jssapi"
+  jssAPIPass="${JSSAPIpass}"
 
-    curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>${1}</name><value>${2}</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
+  curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>${1}</name><value>${2}</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
 }
 
 function Recon() {
@@ -52,15 +52,15 @@ function ScreenSize() {
 	ModelName="${ModelQuery##*:}"
 
   resolution=$(system_profiler SPDisplaysDataType | grep Resolution | awk '{print$2,$3,$4}')
-    ScreenSize=`
-      case "${resolution}" in
-        "1366 x 768")                  echo "11";;
-        "2560 x 1600" | "1440 x 900")  echo "13";;
-        "2880 x 1800")                 echo "15";;
-        "1920 x 1080" | "4096 x 2304") echo "21";;
-        "5120 x 2880")                 echo "27";;
-      esac
-      `
+  ScreenSize=`
+    case "${resolution}" in
+      "1366 x 768")                  echo "11";;
+      "2560 x 1600" | "1440 x 900")  echo "13";;
+      "2880 x 1800")                 echo "15";;
+      "1920 x 1080" | "4096 x 2304") echo "21";;
+      "5120 x 2880")                 echo "27";;
+    esac
+    `
 
 	Model="${ScreenSize}\"${ModelName}"
 
