@@ -131,16 +131,17 @@ Enjoy=('Enjoy' 'Enjoy Your New Macbook' '/usr/local/ti/icons/999-Success.icns' 2
 Policies=("${Configurations[*]}" "${SoftwarePrep[*]}" "${Symantec[*]}" "${Encrypt[*]}" "${VPN[*]}" "${EC[*]}" "${GP[*]}" "${Printing[*]}" "${CrashPlan[*]}" "${UI[*]}"\
  "${CacheOffice[*]}" "${InstallOffice[*]}" "${Jabber[*]}" "${Plugins[*]}" "${OSUpdates[*]}")
 
-ArrLen="${#Policies[@]}"
-
-for (( i=0; i<"${ArrLen}"; i++ ));
+for i in "${Policies[@]}"
 do
 	echo "${Policies[i]}" | while read trigger description icon iconSize
 	do
 		JAMFHelper "${trigger}" "${description}" "${icon}" "${iconSize}"
 	done
-done
+done &&
 
-APICall Status Deployed && APICall UserGroup Production && SetProvision && JAMFHelper Wireless
+APICall Status Deployed &&
+APICall UserGroup Production &&
+SetProvision &&
+JAMFHelper Wireless
 
 exit 0
