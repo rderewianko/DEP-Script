@@ -47,14 +47,6 @@ function Recon() {
 	sudo /usr/local/bin/jamf recon
 }
 
-function Policy() {
-	sudo /usr/local/bin/jamf policy
-}
-
-function KJH() {
-	/usr/bin/killall jamfhelper
-}
-
 function ScreenSize() {
 	ModelQuery=$(system_profiler SPHardwareDataType | grep "Model Name")
 	ModelName="${ModelQuery##*:}"
@@ -94,8 +86,6 @@ function JAMFHelper() {
 	-alignDescription "$alignDescription" \
 	-alignHeading "$alignHeading" &
 	jamf policy -trigger "${1}"
-
-	$(KJH)
 }
 
 CompName &&
@@ -119,6 +109,8 @@ JAMFHelper OSUpdates "Updating MacOS" /System/Library/CoreServices/CoreTypes.bun
 APICall "Status" "Deployed" &&
 APICall "UserGroup" "Production" &&
 SetProvision &&
-JAMFHelper WirelessUpdate "Finishing up" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns 256
+JAMFHelper WirelessUpdate "Finishing up" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns 256 &&
+
+sudo shutdown -r now
 
 exit 0
