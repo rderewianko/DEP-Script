@@ -9,6 +9,7 @@
 ########################################################################################
 
 LoggedInUser=$(/usr/libexec/PlistBuddy -c "print :dsAttrTypeStandard\:RealName:0" /dev/stdin <<< "$(dscl -plist . -read /Users/$(stat -f%Su /dev/console) RealName)")
+SetProvision=$(sudo /usr/libexec/PlistBuddy -c "Set :ProvisioningScript 2.0.0" -c "Set :Status Provisioned" /usr/local/ti/com.ti.provisioned.plist)
 
 function CompName() {
     CompType=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name")
@@ -37,10 +38,6 @@ function APICall() {
     jssAPIPass="${JSSAPIpass}"
 
     curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>${1}</name><value>${2}</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
-}
-
-function SetProvision() {
-	sudo /usr/libexec/PlistBuddy -c "Set :Status Provisioned" -c "Set :ProvisioningScript 2.0.0"/usr/local/ti/com.ti.provisioned.plist
 }
 
 function Recon() {
@@ -108,9 +105,8 @@ JAMFHelper Plugins "Installing Internet Plugins" /Applications/Safari.app/Conten
 JAMFHelper OSUpdates "Updating MacOS" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns 256 &&
 APICall "Status" "Deployed" &&
 APICall "UserGroup" "Production" &&
-SetProvision &&
-JAMFHelper WirelessUpdate "Finishing up" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns 256 &&
-
-sudo shutdown -r now
+"${SetProvision}" &&
+JAMFHelper WirelessUpdate "Wireless Network Configuration" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericNetworkIcon.icns 256 &&
+JAMFHelper Enjoy "Complete" /usr/local/ti/icons/999-Success.icns 256
 
 exit 0
