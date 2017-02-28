@@ -17,7 +17,7 @@ function SetProvision() {
 function CompName() {
     CompType=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Model Name")
     SerialNumber=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
-  if [ "${CompType}" == "MacBook" ]; then
+  if [ "${CompType}" == *"MacBook"* ]; then
     CompName="L${SerialNumber}"
   else
     CompName="D${SerialNumber}"
