@@ -172,7 +172,7 @@ echo "Running OSUpdates Policy"
 JAMFHelper OSUpdates "Updating MacOS" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/FinderIcon.icns 256 &&
 echo "OSUpdates policy ran"
 echo "Running Dock Policy"
-JAMFHelper SetDockDefault "Setting Dock Defaults" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GridIcon.icns 256 &&
+JAMFHelper SetDockDefault "Setting Dock Defaults" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AllMyFiles.icns 256 &&
 echo "Dock policy ran"
 echo "Setting Provision plist"
 SetProvision &&
