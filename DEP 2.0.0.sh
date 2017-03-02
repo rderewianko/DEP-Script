@@ -28,7 +28,9 @@ function LockScreen() {
 	"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
 	-windowType "fs" \
 	-heading "Congratulations ${LoggedInUser}" \
-	-description "Your Mac is being customized. This may take up to 30 minutes, depending on your network speed. Please call 1-800-527-4740 if you need any assistance." \
+	-description "Your Mac is being customized.
+	This may take up to 30 minutes, depending on your network speed.
+	Please call Central Help Desk at 1-800-527-4740 if you need assistance." \
 	-icon /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns \
 	-iconSize "256" \
 	-alignDescription "center" \
@@ -100,7 +102,9 @@ function JAMFHelper() {
 	alignHeading="center"
 
 	jhHeading="${2}"
-	jhDescription="Your Mac is being customized. This may take up to 30 minutes, depending on your network speed. Please call 1-800-527-4740 if you need any assistance."
+	jhDescription="Your Mac is being customized.
+	This may take up to 30 minutes, depending on your network speed.
+	Please call Central Help Desk at 1-800-527-4740 if you need assistance."
 
 	"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
 	-windowType "$windowType" \
