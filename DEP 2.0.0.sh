@@ -43,7 +43,7 @@ function ProvisionEA() {
 
 	sudo mkdir /usr/local/ti
 	sudo chmod 777 /usr/local/ti
-	sudo /usr/libexec/PlistBuddy -c "add :Status string Not Provisioned" -c "add :ProvisioningScript string 0.0.0" /usr/local/ti/com.ti.provisioned.plist &&
+	sudo /usr/libexec/PlistBuddy -c "add :Status string Not Provisioned" -c "add :ProvisioningScript string 0.0.0" -c "add :SCEPStatus string None" /usr/local/ti/com.ti.provisioned.plist &&
 
 	$(LockScreen)
 
@@ -62,7 +62,7 @@ function ProvisionEA() {
 }
 
 function SetProvision() {
-	sudo /usr/libexec/PlistBuddy -c "Set :ProvisioningScript 2.0.0" -c "Set :Status Provisioned" /usr/local/ti/com.ti.provisioned.plist
+	sudo /usr/libexec/PlistBuddy -c "Set :ProvisioningScript 2.0.0" -c "Set :Status Provisioned" -c "Set :SCEPStatus Success" /usr/local/ti/com.ti.provisioned.plist
 }
 
 function CompName() {
@@ -185,7 +185,7 @@ echo "Running recon Policy"
 Recon &&
 echo "Recon policy ran"
 echo "Running Wait Loop"
-while true; do
+for ((i=0; i<300; i++)); do
 	scepCompCert="BF0EC959-14B3-4C75-9CBF-5F2ED8C92858"
 	scepCompCertDownload=$(/usr/bin/profiles -P | /usr/bin/grep "${scepCompCert}")
 
@@ -194,6 +194,8 @@ while true; do
 
 	if [[ ! -z "${scepCompCertDownload}" && ! -z "${scepUserCertDownload}" ]]; then
 		break
+	elif [[ ${i} -eq 300 ]]; then
+		sudo /usr/libexec/PlistBuddy -c "Set :SCEPStatus Failed" /usr/local/ti/com.ti.provisioned.plist
 	fi
 	sleep 1
 done
