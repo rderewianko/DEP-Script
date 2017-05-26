@@ -30,7 +30,7 @@ function LockScreen() {
 	-heading "Congratulations ${LoggedInUser}" \
 	-description "Your Mac is being customized.
 	This may take up to 30 minutes, depending on your network speed.
-	Please call Central Help Desk at 1-800-527-4740 if you need assistance." \
+	Please call Central Help Desk at  if you need assistance." \
 	-icon /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/com.apple.macbook-retina-space-gray.icns \
 	-iconSize "256" \
 	-alignDescription "center" \
@@ -83,9 +83,9 @@ function CompName() {
 JSSAPIpass="${4}"
 
 function APICall() {
-	jssURL="https://jssdmz.ext.ti.com:8443/JSSResource"
+	jssURL=""
 	serial=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
-	jssAPIUser="jssapi"
+	jssAPIUser=""
 	jssAPIPass="${JSSAPIpass}"
 
 	curl -X PUT -H "Accept: application/xml" -H "Content-type: application/xml" -k -u "${jssAPIUser}:${jssAPIPass}" -d "<computer><extension_attributes><attribute><name>${1}</name><value>${2}</value></attribute></extension_attributes></computer>" "${jssURL}"/computers/serialnumber/"${serial}"
@@ -104,7 +104,7 @@ function JAMFHelper() {
 	jhHeading="${2}"
 	jhDescription="Your Mac is being customized.
 	This may take up to 30 minutes, depending on your network speed.
-	Please call Central Help Desk at 1-800-527-4740 if you need assistance."
+	Please call Central Help Desk at  if you need assistance."
 
 	"/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfhelper" \
 	-windowType "$windowType" \
